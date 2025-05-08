@@ -1,0 +1,555 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2022.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px 'Helvetica Neue'}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px 'Helvetica Neue'; min-height: 15.0px}
+    span.s1 {font: 13.0px 'Lucida Grande'}
+    span.s2 {font: 13.0px 'Apple Color Emoji'}
+    span.s3 {font: 13.0px 'Zapf Dingbats'}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Simple To-Do App with Pomodoro&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Custom styles can be added here if necessary, but prefer Tailwind classes */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', sans-serif; /* Using Inter font as a common modern choice */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Style for the custom notification */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#notification {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Ensuring select dropdowns in tasks are not overly wide */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.priority-select {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-width: 100px; /* Adjust as needed */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Custom styling for pinned task */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.pinned-task {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>/* Example: Add a subtle border or background tint for pinned tasks if desired beyond button state */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>/* border-left: 4px solid #fbbf24; Tailwind: border-l-4 border-yellow-400 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Add a little more visual feedback for draggable items */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>li[draggable="true"] {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: grab;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>li[draggable="true"]:active {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: grabbing;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col items-center pt-4 sm:pt-8 px-2"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="notification" class="fixed top-5 right-5 bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md opacity-0 transform translate-y-[-20px] z-50"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>Notification Message</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="pomodoro" class="bg-white p-4 sm:p-6 rounded-xl shadow-lg w-full max-w-4xl mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1 class="text-2xl font-semibold text-center text-gray-700 mb-4"&gt;Pomodoro Timer&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="progress-bar-container bg-gray-200 rounded-full h-8 overflow-hidden relative mb-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="timer-label" class="absolute inset-0 flex items-center justify-center text-sm font-medium text-gray-700"&gt;25:00&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="progress-bar h-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-500 ease-linear" id="progress" style="width: 0%;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="timer-controls flex flex-col sm:flex-row justify-center items-center gap-2 mb-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="number" id="pomodoro-duration-input" class="border border-gray-300 rounded-lg px-3 py-2 text-sm w-full sm:w-auto focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Minutes (e.g., 25)" aria-label="Pomodoro duration in minutes"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="setPomodoroDuration()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-150 w-full sm:w-auto text-sm"&gt;Set Duration&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="timer-actions flex justify-center gap-2 mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="startTimer()" class="bg-green-500 hover:bg-green-600 text-white p-2.5 rounded-lg shadow-sm transition duration-150" aria-label="Start Timer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="pauseTimer()" class="bg-yellow-500 hover:bg-yellow-600 text-white p-2.5 rounded-lg shadow-sm transition duration-150" aria-label="Pause Timer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="resetTimer()" class="bg-red-500 hover:bg-red-600 text-white p-2.5 rounded-lg shadow-sm transition duration-150" aria-label="Reset Timer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="pomodoro-stats" class="text-center border-t border-gray-200 pt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-lg font-semibold text-gray-600 mb-2"&gt;Session Stats (Today)&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p&gt;Focus Sessions: &lt;span id="focus-sessions-today" class="font-bold"&gt;0&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p&gt;Breaks Taken: &lt;span id="breaks-taken-today" class="font-bold"&gt;0&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p&gt;Total Focus Time: &lt;span id="total-focus-time-today" class="font-bold"&gt;0&lt;/span&gt; min&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="flex flex-col lg:flex-row gap-4 w-full max-w-4xl"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="column flex-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="app" class="bg-white p-4 sm:p-6 rounded-xl shadow-lg h-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h1 class="text-2xl font-semibold text-center text-gray-700 mb-4"&gt;To-Do List&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input type="text" id="todo-input" class="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter a task..." aria-label="Enter a task"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;ul id="todo-list" class="space-y-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="column flex-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="schedule" class="bg-white p-4 sm:p-6 rounded-xl shadow-lg h-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h1 class="text-2xl font-semibold text-center text-gray-700 mb-4"&gt;Daily Schedule&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-gray-600 text-center"&gt;Schedule UI will go here...&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;div class="mt-4 space-y-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="p-3 bg-gray-50 rounded-lg border border-gray-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="font-medium text-gray-700"&gt;09:00 AM - Morning Stand-up&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="p-3 bg-gray-50 rounded-lg border border-gray-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="font-medium text-gray-700"&gt;10:00 AM - Focus Work (Pomodoro)&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="p-3 bg-gray-50 rounded-lg border border-gray-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="font-medium text-gray-700"&gt;01:00 PM - Lunch&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;audio id="beep" src="https://www.soundjay.com/button/beep-07.mp3" preload="auto"&gt;&lt;/audio&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// DOM Elements</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const todoInput = document.getElementById("todo-input");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const todoList = document.getElementById("todo-list");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pomodoroDurationInput = document.getElementById("pomodoro-duration-input");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const timerLabel = document.getElementById("timer-label");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const progressBar = document.getElementById("progress");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const beepSound = document.getElementById("beep");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const notificationElement = document.getElementById("notification");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const focusSessionsTodayEl = document.getElementById("focus-sessions-today");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const breaksTakenTodayEl = document.getElementById("breaks-taken-today");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const totalFocusTimeTodayEl = document.getElementById("total-focus-time-today");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Timer State</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let pomodoroInterval;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let defaultPomodoroTimeMinutes = parseInt(localStorage.getItem("pomodoroDuration")) || 25;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let defaultBreakTimeMinutes = 5;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>let totalTimeSeconds = defaultPomodoroTimeMinutes * 60;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let timeLeftSeconds = totalTimeSeconds;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let isTimerRunning = false;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let isBreakTime = false;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let notificationTimeout;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Stats State</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let stats = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>focusSessionsToday: 0,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>breaksTakenToday: 0,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>totalFocusTimeToday: 0, // in minutes</p>
+<p class="p1"><span class="Apple-converted-space">            </span>lastUpdatedDate: new Date().toLocaleDateString()</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Initialize Pomodoro duration input</p>
+<p class="p1"><span class="Apple-converted-space">        </span>pomodoroDurationInput.value = defaultPomodoroTimeMinutes;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Notification Function ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function showNotification(message, type = 'info', duration = 3000) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (notificationTimeout) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>clearTimeout(notificationTimeout);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>notificationElement.textContent = message;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Reset classes carefully to ensure smooth transition</p>
+<p class="p1"><span class="Apple-converted-space">            </span>notificationElement.className = 'fixed top-5 right-5 text-white py-2 px-4 rounded-lg shadow-md opacity-0 transform translate-y-[-20px] z-50 transition-all duration-500 ease-in-out';<span class="Apple-converted-space"> </span></p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (type === 'success') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>notificationElement.classList.add('bg-green-500');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else if (type === 'error') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>notificationElement.classList.add('bg-red-500');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else { // 'info' or default</p>
+<p class="p1"><span class="Apple-converted-space">                </span>notificationElement.classList.add('bg-blue-500');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Force reflow to ensure transition is applied</p>
+<p class="p1"><span class="Apple-converted-space">            </span>void notificationElement.offsetWidth;<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>notificationElement.classList.add('opacity-100', 'translate-y-0');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>notificationTimeout = setTimeout(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>notificationElement.classList.remove('opacity-100', 'translate-y-0');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>notificationElement.classList.add('opacity-0', 'translate-y-[-20px]');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, duration);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Stats Functions ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function loadStats() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const storedStats = localStorage.getItem("pomodoroStats");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const today = new Date().toLocaleDateString();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (storedStats) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>stats = JSON.parse(storedStats);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Reset stats if it's a new day</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (stats.lastUpdatedDate !== today) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>stats.focusSessionsToday = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>stats.breaksTakenToday = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>stats.totalFocusTimeToday = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>stats.lastUpdatedDate = today;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// If no stats stored, ensure lastUpdatedDate is set to today</p>
+<p class="p1"><span class="Apple-converted-space">                </span>stats.lastUpdatedDate = today;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateStatsDisplay();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function saveStats() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>stats.lastUpdatedDate = new Date().toLocaleDateString(); // Ensure date is current on save</p>
+<p class="p1"><span class="Apple-converted-space">            </span>localStorage.setItem("pomodoroStats", JSON.stringify(stats));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateStatsDisplay() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (focusSessionsTodayEl) focusSessionsTodayEl.textContent = stats.focusSessionsToday;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (breaksTakenTodayEl) breaksTakenTodayEl.textContent = stats.breaksTakenToday;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (totalFocusTimeTodayEl) totalFocusTimeTodayEl.textContent = stats.totalFocusTimeToday;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function incrementFocusSession() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>stats.focusSessionsToday++;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>stats.totalFocusTimeToday += defaultPomodoroTimeMinutes; // Add the duration of the completed focus session</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateStatsDisplay();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>saveStats();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function incrementBreakSession() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>stats.breaksTakenToday++;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateStatsDisplay();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>saveStats();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Task Functions ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function saveTasks() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const tasks = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>todoList.querySelectorAll("li").forEach(li =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tasks.push({</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>id: li.id,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>text: li.querySelector(".task-text").textContent,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>completed: li.classList.contains("completed-task"),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>pinned: li.dataset.pinned === "true",</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>priority: li.dataset.priority || "Medium"</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>localStorage.setItem("tasks", JSON.stringify(tasks));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function loadTasks() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const tasks = JSON.parse(localStorage.getItem("tasks")) || [];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tasks.forEach(task =&gt; addTaskToDOM(task.text, task.completed, task.pinned, task.priority, task.id));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} catch (e) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>console.error("Error loading tasks from local storage:", e);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>localStorage.removeItem("tasks");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>showNotification("Error loading tasks. Storage cleared.", "error");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function addTaskToDOM(text, completed = false, pinned = false, priority = "Medium", id = `task-${Date.now()}`) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const li = document.createElement("li");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>li.id = id;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>li.draggable = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>li.dataset.pinned = pinned;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>li.dataset.priority = priority;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Base classes for list items</p>
+<p class="p1"><span class="Apple-converted-space">            </span>li.className = "flex items-center justify-between bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-200";</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (completed) li.classList.add("completed-task", "line-through", "text-gray-400", "bg-gray-100");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (pinned) li.classList.add("pinned-task"); // You can add specific styles for pinned-task in &lt;style&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Priority Select</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const prioritySelect = document.createElement("select");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>prioritySelect.className = "priority-select text-xs border border-gray-300 rounded-md p-1 mr-2 focus:ring-1 focus:ring-blue-400 focus:border-transparent";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>["High", "Medium", "Low"].forEach(level =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const option = document.createElement("option");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>option.value = level;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>option.textContent = level;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (level === priority) option.selected = true;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>prioritySelect.appendChild(option);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>prioritySelect.value = priority;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>prioritySelect.onchange = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>li.dataset.priority = prioritySelect.value;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>reorderTasks(); // This will also save tasks</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>li.appendChild(prioritySelect);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Task Text Span</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const span = document.createElement("span");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>span.textContent = text;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>span.className = "task-text flex-grow mr-2 break-all"; // Added class for specific targeting</p>
+<p class="p1"><span class="Apple-converted-space">            </span>li.appendChild(span);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Button Container</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const btnContainer = document.createElement("div");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>btnContainer.className = "flex gap-1 items-center flex-shrink-0";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Complete Button</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const completeBtn = document.createElement("button");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>completeBtn.innerHTML = '<span class="s1">✓</span>'; // Checkmark icon</p>
+<p class="p1"><span class="Apple-converted-space">            </span>completeBtn.className = "bg-green-500 hover:bg-green-600 text-white font-bold p-1.5 rounded-md text-xs transition duration-150";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>completeBtn.setAttribute('aria-label', 'Complete task');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>completeBtn.onclick = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>li.classList.toggle("completed-task");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>li.classList.toggle("line-through");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>li.classList.toggle("text-gray-400");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>li.classList.toggle("bg-gray-100", li.classList.contains("completed-task"));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>saveTasks();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>btnContainer.appendChild(completeBtn);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Pin Button</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const pinBtn = document.createElement("button");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pinBtn.innerHTML = '<span class="s2">📌</span>'; // Pin icon</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pinBtn.className = `p-1.5 rounded-md text-xs transition duration-150 ${pinned ? 'bg-yellow-600 text-white' : 'bg-yellow-400 hover:bg-yellow-500 text-gray-700'}`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pinBtn.setAttribute('aria-label', 'Pin task');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pinBtn.onclick = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const isPinned = li.dataset.pinned === "true";</p>
+<p class="p1"><span class="Apple-converted-space">                </span>li.dataset.pinned = isPinned ? "false" : "true";</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pinBtn.classList.toggle("bg-yellow-600", !isPinned);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pinBtn.classList.toggle("text-white", !isPinned);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pinBtn.classList.toggle("bg-yellow-400", isPinned);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pinBtn.classList.toggle("hover:bg-yellow-500", isPinned);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pinBtn.classList.toggle("text-gray-700", isPinned);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>li.classList.toggle("pinned-task", !isPinned);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>reorderTasks(); // This will also save tasks</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>btnContainer.appendChild(pinBtn);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Delete Button</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const deleteBtn = document.createElement("button");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>deleteBtn.innerHTML = '<span class="s3">✕</span>'; // Cross icon</p>
+<p class="p1"><span class="Apple-converted-space">            </span>deleteBtn.className = "bg-red-500 hover:bg-red-600 text-white font-bold p-1.5 rounded-md text-xs transition duration-150";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>deleteBtn.setAttribute('aria-label', 'Delete task');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>deleteBtn.onclick = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>todoList.removeChild(li);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>saveTasks();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>btnContainer.appendChild(deleteBtn);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>li.appendChild(btnContainer);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Add to list and reorder</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (pinned) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>todoList.prepend(li);<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>todoList.appendChild(li);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>reorderTasks(); // This will also save tasks</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function reorderTasks() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const tasks = Array.from(todoList.children);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>tasks.sort((a, b) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const pinnedA = a.dataset.pinned === "true";</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const pinnedB = b.dataset.pinned === "true";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (pinnedA &amp;&amp; !pinnedB) return -1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (!pinnedA &amp;&amp; pinnedB) return 1;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const priorities = { High: 1, Medium: 2, Low: 3 };</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return priorities[a.dataset.priority] - priorities[b.dataset.priority];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>tasks.forEach(task =&gt; todoList.appendChild(task)); // Re-append in sorted order</p>
+<p class="p1"><span class="Apple-converted-space">            </span>saveTasks(); // Save after reordering</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>todoInput.addEventListener("keypress", function (e) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (e.key === "Enter" &amp;&amp; todoInput.value.trim() !== "") {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>addTaskToDOM(todoInput.value.trim());</p>
+<p class="p1"><span class="Apple-converted-space">                </span>todoInput.value = "";</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// saveTasks() is effectively called within addTaskToDOM via reorderTasks</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Drag and Drop ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let draggedItem = null;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>todoList.addEventListener("dragstart", (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (e.target.tagName === 'LI') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>draggedItem = e.target;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>e.dataTransfer.setData("text/plain", e.target.id);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setTimeout(() =&gt; e.target.classList.add('opacity-50'), 0);<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">         </span>todoList.addEventListener("dragend", (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (draggedItem) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>draggedItem.classList.remove('opacity-50');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>draggedItem = null;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>saveTasks(); // Save tasks after drag operation is fully complete</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>todoList.addEventListener("dragover", (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>e.preventDefault();<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const afterElement = getDragAfterElement(todoList, e.clientY);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const currentDragged = document.querySelector('.opacity-50');<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (currentDragged) {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>if (afterElement == null) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>todoList.appendChild(currentDragged);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>todoList.insertBefore(currentDragged, afterElement);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function getDragAfterElement(container, y) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const draggableElements = [...container.querySelectorAll('li:not(.opacity-50)')];<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>return draggableElements.reduce((closest, child) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const box = child.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const offset = y - box.top - box.height / 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (offset &lt; 0 &amp;&amp; offset &gt; closest.offset) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return { offset: offset, element: child };</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return closest;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, { offset: Number.NEGATIVE_INFINITY }).element;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>todoList.addEventListener("drop", (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>e.preventDefault();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (draggedItem) {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>draggedItem.classList.remove('opacity-50');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// The actual DOM reordering happens in dragover.</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// We just need to ensure the final order is saved.</p>
+<p class="p1"><span class="Apple-converted-space">            </span>saveTasks();<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>draggedItem = null;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Pomodoro Timer Functions ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateTimerDisplay() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const minutes = String(Math.floor(timeLeftSeconds / 60)).padStart(2, '0');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const seconds = String(timeLeftSeconds % 60).padStart(2, '0');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>timerLabel.textContent = `${minutes}:${seconds}`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>progressBar.style.width = `${(totalTimeSeconds &gt; 0 ? (1 - timeLeftSeconds / totalTimeSeconds) : 0) * 100}%`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.title = `${minutes}:${seconds} - ${isBreakTime ? "Break" : "Focus"} - To-Do App`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setPomodoroDuration() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const newDuration = parseInt(pomodoroDurationInput.value);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (newDuration &gt; 0 &amp;&amp; newDuration &lt;= 180) { // Max 3 hours</p>
+<p class="p1"><span class="Apple-converted-space">                </span>defaultPomodoroTimeMinutes = newDuration;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>localStorage.setItem("pomodoroDuration", defaultPomodoroTimeMinutes);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (!isTimerRunning &amp;&amp; !isBreakTime) {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                   </span>// If timer is not running and it's a focus session (or about to be one)</p>
+<p class="p1"><span class="Apple-converted-space">                   </span>totalTimeSeconds = defaultPomodoroTimeMinutes * 60;</p>
+<p class="p1"><span class="Apple-converted-space">                   </span>timeLeftSeconds = totalTimeSeconds;</p>
+<p class="p1"><span class="Apple-converted-space">                   </span>updateTimerDisplay();</p>
+<p class="p1"><span class="Apple-converted-space">                   </span>showNotification(`Pomodoro duration set to ${defaultPomodoroTimeMinutes} minutes. Timer reset.`, "success");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else if (isTimerRunning &amp;&amp; !isBreakTime){</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// If a focus session is currently running, notify that change will apply to next session</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>showNotification(`Duration updated to ${defaultPomodoroTimeMinutes} min for the next focus session.`, "info");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else if (isBreakTime) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// If it's break time (running or paused), duration will apply to next focus session</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>showNotification(`Duration updated to ${defaultPomodoroTimeMinutes} min for the next focus session.`, "info");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>// General case if timer is paused during focus, or other states</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>showNotification(`Pomodoro duration set to ${defaultPomodoroTimeMinutes} minutes.`, "success");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>showNotification("Please enter a valid duration (1-180 minutes).", "error");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pomodoroDurationInput.value = defaultPomodoroTimeMinutes; // Reset to current valid</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function startTimer() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (isTimerRunning) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>isTimerRunning = true;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Determine current session's total time</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (isBreakTime) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>totalTimeSeconds = defaultBreakTimeMinutes * 60;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>totalTimeSeconds = defaultPomodoroTimeMinutes * 60;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// If timeLeft is 0 (or less, to be safe), it means a new session is starting (either work or break)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// So, set timeLeft to the full duration of that new session.</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (timeLeftSeconds &lt;= 0) {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                 </span>timeLeftSeconds = totalTimeSeconds;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// If resuming a paused timer, timeLeftSeconds will be &gt; 0 and should be less than totalTimeSeconds.</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// In this case, we don't reset timeLeftSeconds.</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateTimerDisplay(); // Update display immediately</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>pomodoroInterval = setInterval(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>timeLeftSeconds--;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateTimerDisplay();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (timeLeftSeconds &lt; 0) { // Timer reached zero</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>timeLeftSeconds = 0; // Ensure it doesn't go negative in display if interval fires late</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>clearInterval(pomodoroInterval);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>isTimerRunning = false;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>beepSound.play().catch(e =&gt; console.warn("Audio play failed:", e)); // Play sound</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (!isBreakTime) { // Work session ended</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>incrementFocusSession();</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>isBreakTime = true;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// timeLeftSeconds will be set by the next startTimer call for the break</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>showNotification(`Great job! Time for a ${defaultBreakTimeMinutes}-minute break. Starting break...`, "success", 4000);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>startTimer(); // Automatically start break timer</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} else { // Break session ended</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>incrementBreakSession();</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>isBreakTime = false;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// timeLeftSeconds will be set by the next startTimer call for work</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>showNotification(`Break's over! Back to focus for ${defaultPomodoroTimeMinutes} minutes. Starting focus...`, "info", 4000);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>startTimer(); // Automatically start work timer</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function pauseTimer() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>clearInterval(pomodoroInterval);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>isTimerRunning = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (timeLeftSeconds &gt; 0) {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.title = "Timer Paused - To-Do App";</p>
+<p class="p1"><span class="Apple-converted-space">                </span>showNotification("Timer paused.", "info");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function resetTimer(durationChanged = false) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>clearInterval(pomodoroInterval);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>isTimerRunning = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>isBreakTime = false; // Always reset to a work session state</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>totalTimeSeconds = defaultPomodoroTimeMinutes * 60; // Reset to current default focus time</p>
+<p class="p1"><span class="Apple-converted-space">            </span>timeLeftSeconds = totalTimeSeconds;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateTimerDisplay();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!durationChanged) {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>showNotification("Timer reset to focus session.", "info");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.title = "To-Do App"; // Reset title</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Initial Load ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.addEventListener('DOMContentLoaded', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>loadTasks();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>loadStats();<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateTimerDisplay();<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>pomodoroDurationInput.value = defaultPomodoroTimeMinutes;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p2"><br></p>
+</body>
+</html>
